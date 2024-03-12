@@ -9,6 +9,7 @@ pandas = "*"
 webdriver-manager = "*"
 seaborn = "*"
 fastapi = "*"
+uvicorn = "*"
 
 [dev-packages]
 
