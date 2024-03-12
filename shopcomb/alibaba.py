@@ -1,8 +1,11 @@
+import re
 import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from webdriver_manager.chrome import ChromeDriverManager
 from time import sleep
+from shopcomb.clean_data import clean_alibaba
 
 def scrape_aliexpress(search_term, num_pages=5):
     """Scrapes product information from AliExpress for the given search term.
@@ -15,7 +18,7 @@ def scrape_aliexpress(search_term, num_pages=5):
        pd.DataFrame: A DataFrame containing the scraped product data.
     """
 
-    browser = webdriver.Chrome()  # Open a Chrome browser instance
+    browser = webdriver.Chrome(ChromeDriverManager().install())  # Open a Chrome browser instance using ChromeDriverManager
 
     website = 'https://www.aliexpress.com'
     browser.get(website)  # Navigate to AliExpress
@@ -29,6 +32,7 @@ def scrape_aliexpress(search_term, num_pages=5):
     input_search.clear()
     input_search.send_keys(search_term)
     browser.execute_script("arguments[0].click();", search_button)
+    # search_button.click()
 
     # XPaths for product information elements
     product_class = "//h3[@class='multi--titleText--nXeOvyr']"
@@ -36,7 +40,6 @@ def scrape_aliexpress(search_term, num_pages=5):
     shipping_class = "//span[@class='tag--text--1BSEXVh tag--textStyle--3dc7wLU multi--serviceStyle--1Z6RxQ4']"
     store_name = "//a[@class='cards--storeLink--XkKUQFS']"
 
-    # Lists to store Scraped information
     product_descriptions = []
     prices = []
     shipping_prices = []
@@ -60,7 +63,6 @@ def scrape_aliexpress(search_term, num_pages=5):
                shipping_prices.append(shipping[j].text)
                store_names.append(stores[j].text)
            except:
-               # Handle potential errors during extraction
                pass
 
        # Navigate to the next page
@@ -80,5 +82,5 @@ def scrape_aliexpress(search_term, num_pages=5):
        'Shipping Prices': shipping_prices,
        'Store Names': store_names
     }
-    df = pd.DataFrame(data_set)
+    df = clean_alibaba(pd.DataFrame(data_set))
     return df
