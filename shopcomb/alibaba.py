@@ -3,9 +3,10 @@ import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 from time import sleep
-from shopcomb.clean_data import clean_alibaba
+from clean_data import clean_alibaba
 
 def scrape_aliexpress(search_term, num_pages=5):
     """Scrapes product information from AliExpress for the given search term.
@@ -18,11 +19,11 @@ def scrape_aliexpress(search_term, num_pages=5):
        pd.DataFrame: A DataFrame containing the scraped product data.
     """
 
-    browser = webdriver.Chrome(ChromeDriverManager().install())  # Open a Chrome browser instance using ChromeDriverManager
+    browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))  # Open a Chrome browser instance using ChromeDriverManager
 
     website = 'https://www.aliexpress.com'
     browser.get(website)  # Navigate to AliExpress
-    browser.maximize_window()  # Maximize the window for better visibility
+   #  browser.maximize_window()  # Maximize the window for better visibility
 
     # Find the search bar and button elements
     input_search = browser.find_element(By.CLASS_NAME, 'search--keyword--15P08Ji')
@@ -82,5 +83,8 @@ def scrape_aliexpress(search_term, num_pages=5):
        'Shipping Prices': shipping_prices,
        'Store Names': store_names
     }
-    df = clean_alibaba(pd.DataFrame(data_set))
-    return df
+    try:
+      df = clean_alibaba(pd.DataFrame(data_set))
+      return df
+    except ValueError:
+        return 'Cannot return the dataframe because some values are missing. Kindly run again'
