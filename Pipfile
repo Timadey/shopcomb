@@ -12,6 +12,7 @@ fastapi = "*"
 uvicorn = "*"
 tableauhyperapi = "*"
 pantab = "*"
+tableauserverclient = "*"
 
 [dev-packages]
 
